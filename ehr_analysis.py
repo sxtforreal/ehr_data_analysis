@@ -34,7 +34,7 @@ def parse_data(
         # The function has computational complexity 0(NM)
 
 
-def num_older_than(age: float, patient_info: list[dict[str, str]]) -> int:
+def num_older_than(age: float, patient_info: list[dict]) -> int:
     """Take the data and return the number of patients
     older than a given age (in years).
     """
@@ -81,6 +81,54 @@ def sick_patients(
                 float(patient["LabValue"]) > value
             ):  # O(2)
                 lst.add(patient["PatientID"])  # O(1)
+        else:
+            raise ValueError("gt_lt should be either < or >")
     return lst  # O(1)
     # The function has computational complexity 0(N)
 
+
+def first_admission(
+    lab_info: list[dict[str, str]],
+    patient_info: list[dict[str, str]],
+    id: str,
+    lab_name: str,
+) -> int:
+    """Take the patient data, lab data, and return the age of the patient's
+    (specified by id) first admission to the lab(specified by lab_name).
+    Because the data contains multiple records for an individual (same
+    addmission id and lab name), the decision is to take the minimum of them
+    as the first date of admission.
+    """
+    for patient in patient_info:  # O(N)
+        if patient["PatientID"] == id:  # O(1)
+            dob = patient.get("PatientDateOfBirth")  # O(1)
+            if not isinstance(dob, str):  # O(1)
+                raise ValueError("Date of Birth should be of type str.")  # O(1)
+            else:  # O(1)
+                dob = dob.split()  # O(1)
+                dob = datetime.strptime(dob[0], "%Y-%m-%d")  # O(1)
+    visits = set()  # O(1)
+    for patient_visit in lab_info:  # O(N)
+        if (
+            patient_visit["PatientID"] == id
+            and patient_visit["AdmissionID"] == "1"
+            and patient_visit["LabName"] == lab_name
+        ):  # O(3)
+            visit_date = patient_visit.get("LabDateTime")  # O(1)
+            if not isinstance(visit_date, str):  # O(1)
+                raise ValueError("Date of visit should be of type str.")  # O(1)
+            else:  # O(1)
+                visit_date = visit_date.split()  # O(1)
+                visit_date = datetime.strptime(visit_date[0], "%Y-%m-%d")  # O(1)
+                visits.add(visit_date)  # O(1)
+    first = min(visits)  # O(1)
+    if first.month > dob.month:  # O(1)
+        first_adm = first.year - dob.year  # O(1)
+    elif first.month == dob.month and first.day >= dob.day:  # O(1)
+        first_adm = first.year - dob.year  # O(1)
+    elif first.month == dob.month and first.day < dob.day:  # O(1)
+        first_adm = first.year - dob.year - 1  # O(1)
+    elif first.month < dob.month:  # O(1)
+        first_adm = first.year - dob.year - 1  # O(1)
+    return first_adm  # O(1)
+    # The function has computational complexity 0(N)

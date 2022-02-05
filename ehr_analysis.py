@@ -34,7 +34,7 @@ def parse_data(
         # The function has computational complexity 0(NM)
 
 
-def num_older_than(age: float, patient_info: list[dict]) -> int:
+def num_older_than(age: float, patient_info: list[dict[str, str]]) -> int:
     """Take the data and return the number of patients
     older than a given age (in years).
     """

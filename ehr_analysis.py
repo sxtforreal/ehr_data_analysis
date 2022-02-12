@@ -121,7 +121,7 @@ def first_admission(
                 visit_date = visit_date.split()  # O(1)
                 visit_date = datetime.strptime(visit_date[0], "%Y-%m-%d")  # O(1)
                 visits.add(visit_date)  # O(1)
-    first = min(visits)  # O(1)
+    first = min(visits)  # O(N)
     if first.month > dob.month:  # O(1)
         first_adm = first.year - dob.year  # O(1)
     elif first.month == dob.month and first.day >= dob.day:  # O(1)

@@ -1,9 +1,15 @@
 # patient_dat and lab_dat are fake, parsed datasets(i.e. output of parse_data function).
 
 import pytest
-from ehr_analysis import parse_data, num_older_than, sick_patients, first_admission
+from ehr_analysis import (
+    Patient,
+    Lab,
+    num_older_than,
+    sick_patients,
+    first_admission,
+)
 
-patient_dat = [
+patient_dic = [
     {
         "PatientID": "FB2ABB23-C9D0-4D09-8464-49BF0B982F0F",
         "PatientGender": "Male",
@@ -41,8 +47,22 @@ patient_dat = [
         "PatientPopulationPercentageBelowPoverty": "16.09",
     },
 ]
+fake_patient_data = []
+for i in patient_dic:
+    fake_patient_data.append(
+        Patient(
+            i["PatientID"],
+            i["PatientGender"],
+            i["PatientDateOfBirth"],
+            i["PatientRace"],
+            i["PatientMaritalStatus"],
+            i["PatientLanguage"],
+            i["PatientPopulationPercentageBelowPoverty"],
+        )
+    )
 
-lab_dat = [
+
+lab_dic = [
     {
         "PatientID": "FB2ABB23-C9D0-4D09-8464-49BF0B982F0F",
         "AdmissionID": "1",
@@ -76,6 +96,18 @@ lab_dat = [
         "LabDateTime": "1992-07-01 01:31:08.677",
     },
 ]
+fake_lab_data = []
+for j in lab_dic:
+    fake_lab_data.append(
+        Lab(
+            j["PatientID"],
+            j["AdmissionID"],
+            j["LabName"],
+            j["LabValue"],
+            j["LabUnits"],
+            j["LabDateTime"],
+        )
+    )
 
 
 def test_num_older_than():
@@ -83,14 +115,14 @@ def test_num_older_than():
     assert (
         num_older_than(
             50,
-            patient_dat,
+            fake_patient_data,
         )
         == 3
     )
     assert (
         num_older_than(
             80,
-            patient_dat,
+            fake_patient_data,
         )
         == 0
     )
@@ -103,18 +135,18 @@ def test_sick_patients():
             "METABOLIC: GLUCOSE",
             ">",
             103.0,
-            lab_dat,
+            fake_lab_data,
         )
-        == {"FB2ABB23-C9D0-4D09-8464-49BF0B982F0F"}
+        == ["FB2ABB23-C9D0-4D09-8464-49BF0B982F0F"]
     )
     assert (
         sick_patients(
             "CBC: RED BLOOD CELL COUNT",
             ">",
             5,
-            lab_dat,
+            fake_lab_data,
         )
-        == set()
+        == []
     )
 
 
@@ -122,8 +154,8 @@ def test_first_admission():
     """Test first_admission."""
     assert (
         first_admission(
-            lab_dat,
-            patient_dat,
+            fake_lab_data,
+            fake_patient_data,
             "FB2ABB23-C9D0-4D09-8464-49BF0B982F0F",
             "METABOLIC: GLUCOSE",
         )

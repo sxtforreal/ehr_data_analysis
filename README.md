@@ -9,123 +9,25 @@ $ cd ../path/to/the/file
 
 ## API description:
 This repo contains modules working with electronic health record data.
-* parse_data() parse the input ehr text file into a list of dictionaries.
-* num_older_than() takes the output of the parse_data() and return the number of patients older than a given age (in years).
-* sick_patients() take the output of the parse_data() and return a unique list of patients who have a given test with value above (">") or below ("<") a given level.
-* first_admission() computes the age at first admission of any given patient id and lab name.
+** Defined classes:
+* class:Patient has 
+        6 instance attributes: ID, gender, DOB, race, marital, language, PPPBP
+        1 property: Age
+* class:Lab has 
+        5 instance attributes: PatientID, Admission, Name, Value, Units, Time
+        1 method: visit_age
+** Defined functions:
+* parse_data() parse the input ehr text file into a list of class:Patient or class:Lab.
+* num_older_than() takes a list of class:Patient and return the number of patients older than a given age (in years).
+* sick_patients() take a list of class:Lab and return a unique list of patients who have a given test with value above (">") or below ("<") a given level.
+* first_admission() take a list of class:Patient, a list of class:Lab and computes the age at first admission of any given patient id and lab name.
 
 ## Examples:
-* A = parse_data('/Users/sunxiaotan/Desktop/BIO821/ehr/PatientCorePopulatedTable.txt')
-* B = parse_data('/Users/sunxiaotan/Desktop/BIO821/ehr/LabsCorePopulatedTable.txt')
-* num_older_than(50.1, A) -> 77
-* sick_patients(
-        "METABOLIC: ALBUMIN",
-        ">",
-        0.0,
-        B) -> {
-        "016A590E-D093-4667-A5DA-D68EA6987D93",
-        "03A481F5-B32A-4A91-BD42-43EB78FEBA77",
-        "0681FA35-A794-4684-97BD-00B88370DB41",
-        "0A9BA3E4-CF3C-49C4-9774-5EEA2EE7D123",
-        "0BC491C5-5A45-4067-BD11-A78BEA00D3BE",
-        "0E0EADE8-5592-4E0B-9F88-D7596E32EE08",
-        "1311FEE4-2FDC-46E4-83D3-1550A3E51D2C",
-        "135C831F-7DA5-46C0-959C-EBCBD8810B43",
-        "1A220558-5996-43E1-AE5D-7B96180FED35",
-        "1A40AF35-C6D4-4D46-B475-A15D84E8A9D5",
-        "1A8791E3-A61C-455A-8DEE-763EB90C9B2C",
-        "21792512-2D40-4326-BEA2-A40127EB24FF",
-        "220C8D43-1322-4A9D-B890-D426942A3649",
-        "25B786AF-0F99-478C-9CFA-0EA607E45834",
-        "2A5251B1-0945-47FA-A65C-7A6381562591",
-        "2A8772FE-61DB-483E-B6BF-6C0A74BA9C2A",
-        "2E26695A-EFB0-4C7F-9318-E3030B154E39",
-        "2EE42DEF-37CA-4694-827E-FA4EAF882BFC",
-        "3231F930-2978-4F50-8234-755449851E7B",
-        "35FE7491-1A1D-48CB-810C-8DC2599AB3DD",
-        "36775002-9EC3-4889-AD4F-80DC6855C8D8",
-        "36E2F89E-777A-4D77-9D95-0D70A8AB416F",
-        "3B11D6B3-A36A-4B69-A437-C29BF425A941",
-        "3E462A8F-7B90-43A1-A8B6-AD82CB5002C9",
-        "49DADA25-F2C2-42BB-8210-D78E6C7B0D48",
-        "4C201C71-CCED-40D1-9642-F9C8C485B854",
-        "53B9FFDD-F80B-43BE-93CF-C34A023EE7E9",
-        "56A35E74-90BE-44A0-B7BA-7743BB152133",
-        "64182B95-EB72-4E2B-BE77-8050B71498CE",
-        "65A7FBE0-EA9F-49E9-9824-D8F3AD98DAC0",
-        "66154E24-D3EE-4311-89DB-6195278F9B3C",
-        "6623F5D6-D581-4268-9F9B-21612FBBF7B5",
-        "672D554B-D6D1-40B2-A6A4-21A4CB6B1AA6",
-        "6985D824-3269-4D12-A9DD-B932D640E26E",
-        "69B5D2A0-12FD-46EF-A5FF-B29C4BAFBE49",
-        "69CC25ED-A54A-4BAF-97E3-774BB3C9DED1",
-        "6A57AC0C-57F3-4C19-98A1-51135EFBC4FF",
-        "6D5DCAC1-17FE-4D7C-923B-806EFBA3E6DF",
-        "6D8008ED-D623-4BE4-B93B-335F9797C170",
-        "6E70D84D-C75F-477C-BC37-9177C3698C66",
-        "714823AF-C52C-414C-B53B-C43EACD194C3",
-        "7548B6CF-79D9-461D-A0C5-20B861406FAC",
-        "79A7BA2A-D35A-4CB8-A835-6BAA13B0058C",
-        "7A025E77-7832-4F53-B9A7-09A3F98AC17E",
-        "7A7332AD-88B1-4848-9356-E5260E477C59",
-        "7C788499-7798-484B-A027-9FCDC4C0DADB",
-        "7FD13988-E58A-4A5C-8680-89AC200950FA",
-        "80AC01B2-BD55-4BE0-A59A-4024104CF4E9",
-        "80D356B4-F974-441F-A5F2-F95986D119A2",
-        "81C5B13B-F6B2-4E57-9593-6E7E4C13B2CE",
-        "868E700E-3C56-458F-A477-078D671DCB20",
-        "8856096E-E59C-4156-A767-C091AF799C80",
-        "886B5885-1EE2-49F3-98D5-A2F02EB8A9D4",
-        "8AF47463-8534-4203-B210-C2290F6CE689",
-        "8D389A8C-A6D8-4447-9DDE-1A28AB4EC667",
-        "967987B9-FFEF-4776-85CF-AE05CA81F583",
-        "98F593D2-8894-49BB-93B9-5A0E2CF85E2E",
-        "9BBF3A51-443D-438B-9289-B98B8E0577C0",
-        "9C75DF1F-9DA6-4C98-8F5B-E10BDC805ED0",
-        "9E18822E-7D13-45C7-B50E-F95CFF92BC3E",
-        "A0A976C8-9B30-4492-B8C4-5B25095B9192",
-        "A19A0B00-4C9A-4206-B1FE-17E6DA3CEB0B",
-        "A50BE9B4-8A0B-4169-B894-F7BD86D7D90B",
-        "A7142B71-A144-4D56-BD14-3E966B01DB37",
-        "B2EB15FA-5431-4804-9309-4215BDC778C0",
-        "B3892204-880B-40EF-B3BB-B824B50E99E5",
-        "B39DC5AC-E003-4E6A-91B6-FC07625A1285",
-        "B5D31F01-7273-4901-B56F-8139769A11EF",
-        "B70E5A76-F2BC-41E4-B037-CD4D9ABA0967",
-        "B7E9FC4C-5182-4A34-954E-CEF5FC07E96D",
-        "BC44CE19-9FC5-4AC9-A296-9EBC5E3D03AE",
-        "C242E3A4-E785-4DF1-A0E4-3B568DC88F2E",
-        "C2CCB1AB-6633-4CB3-B4E8-157E6FB02376",
-        "C54B5AAD-98E8-472D-BAA0-638D9F3BD024",
-        "C5D09468-574F-4802-B56F-DB38F4EB1687",
-        "C60FE675-CA52-4C55-A233-F4B27E94987F",
-        "C65A4ADE-112E-49E4-B72A-0DED22C242ED",
-        "C8556CC0-32FC-4CA5-A8CD-9CCF38816167",
-        "CC12B481-B516-455B-884F-4CA900B29F2E",
-        "CC9CDA72-B37A-4F8F-AFE4-B08F56A183BE",
-        "CD2ADB1B-97F7-4EF6-BC5C-3E0EC562A06F",
-        "D8B53AA2-7953-4477-9EA4-68400EBAAC5C",
-        "DA6CECFF-DE13-4C4C-919F-64E1A2B76C9D",
-        "DB22A4D9-7E4D-485C-916A-9CD1386507FB",
-        "DB92CDC6-FA9B-4492-BC2C-0C588AD78956",
-        "DCE5AEB8-6DB9-4106-8AE4-02CCC5C23741",
-        "DDC0BC57-7A4E-4E02-9282-177750B74FBC",
-        "E250799D-F6DE-4914-ADB4-B08A6E5029B9",
-        "E483DE6E-D4E6-47FD-905B-22EE86EC7ACE",
-        "E5478913-6819-4977-BB11-4C8B61175B56",
-        "EA7C2F0F-DA1C-4CE8-9700-4BB1FC7AF3FB",
-        "EA9B67E2-15F0-450B-A8A6-14F6E4AE3D12",
-        "EEAFC0B3-B835-4D99-AB33-2F9428E54E5F",
-        "F00C64F8-2033-4640-80FE-F1F62CBE26A5",
-        "F0B53A2C-98CA-415D-B928-E3FD0E52B22A",
-        "FA157FA5-F488-4884-BF87-E144630D595C",
-        "FB2ABB23-C9D0-4D09-8464-49BF0B982F0F",
-        "FB909FAE-72DD-4F6F-9828-D92183DF185F",
-        "FE0B9B59-1927-45B7-8556-E079DC1DE30A",
-        "FFCDECD6-4048-4DCB-B910-1218160005B3",
-    }
-* first_admission(B, A, "1A8791E3-A61C-455A-8DEE-763EB90C9B2C",
-            "METABOLIC: SODIUM") -> 18
+* A = parse_data('/Users/sunxiaotan/Desktop/BIO821/ehr/PatientCorePopulatedTable.txt', 'patient')
+* B = parse_data('/Users/sunxiaotan/Desktop/BIO821/ehr/LabsCorePopulatedTable.txt', 'lab')
+* num_older_than(50, A) -> 3
+* sick_patients("METABOLIC: GLUCOSE", ">", 103.0, B) -> ["FB2ABB23-C9D0-4D09-8464-49BF0B982F0F"]       
+* first_admission(B, A, "FB2ABB23-C9D0-4D09-8464-49BF0B982F0F", "METABOLIC: GLUCOSE") -> 44
 
 
 ### For contributor:

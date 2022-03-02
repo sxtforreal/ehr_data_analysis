@@ -81,10 +81,10 @@ class Lab:
     # The function has computational complexity 0(N)
 
 
-def parse_data(filename: str, Type: str) -> list:
-    """Read the file and parse the data files into lists of class:Patient or
-    class:Lab, indicated by 'Type'. The analysis of computational complexity
-    is based on the assumption that the input data is N by M.
+def parse_patient_data(filename: str) -> list:
+    """Read the file and parse the data files into lists of class:Patient.
+    The analysis of computational complexity is based on the assumption that
+    the input data is N by M.
     """
     output_list = []  # O(1)
     with open(filename, encoding="utf-8-sig") as p:  # O(1)
@@ -96,7 +96,7 @@ def parse_data(filename: str, Type: str) -> list:
             if first_row:  # O(1)
                 col_name = line.split()  # O(1)
                 first_row = False  # O(1)
-            elif (not first_row) and Type == "patient":  # O(1)
+            elif not first_row:  # O(1)
                 dic = {}  # O(1)
                 dat = line.split("\t")  # O(1)
                 for count, ele in enumerate(dat, 0):  # O(M)
@@ -112,7 +112,25 @@ def parse_data(filename: str, Type: str) -> list:
                         dic["PatientPopulationPercentageBelowPoverty"],
                     )  # O(7)
                 )
-            elif (not first_row) and Type == "lab":  # O(1)
+    return output_list  # O(1)
+
+
+def parse_lab_data(filename: str) -> list:
+    """Read the file and parse the data files into lists of class:Lab.
+    The analysis of computational complexity is based on the assumption that
+    the input data is N by M.
+    """
+    output_list = []  # O(1)
+    with open(filename, encoding="utf-8-sig") as p:  # O(1)
+        lines = p.readlines()  # O(1)
+        col_name = []  # O(1)
+        first_row = True  # O(1)
+        for line in lines:  # O(N)
+            line = line.strip()  # O(1)
+            if first_row:  # O(1)
+                col_name = line.split()  # O(1)
+                first_row = False  # O(1)
+            elif not first_row:  # O(1)
                 dic = {}  # O(1)
                 dat = line.split("\t")  # O(1)
                 for count, ele in enumerate(dat, 0):  # O(M)
@@ -151,10 +169,18 @@ def sick_patients(lab: str, gt_lt: str, value: float, lab_info: list[Lab]) -> li
     lst = []  # O(1)
     for record in lab_info:  # O(N)
         if gt_lt == "<":  # O(1)
-            if (record.Name == lab) and (float(record.Value) < value):  # O(2)
+            if (
+                (record.Name == lab)
+                and (float(record.Value) < value)
+                and (record.PatientID not in lst)
+            ):  # O(2)
                 lst.append(record.PatientID)  # O(1)
         elif gt_lt == ">":  # O(1)
-            if (record.Name == lab) and (float(record.Value) > value):  # O(2)
+            if (
+                (record.Name == lab)
+                and (float(record.Value) > value)
+                and (record.PatientID not in lst)
+            ):  # O(2)
                 lst.append(record.PatientID)  # O(1)
         else:  # O(1)
             raise ValueError("gt_lt should be either < or >")  # O(1)

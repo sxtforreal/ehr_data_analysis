@@ -26,7 +26,7 @@ class Patient:
         self.PPPBP = PPPBP
 
     @property
-    def Age(self):
+    def age(self):
         """Get the current age of the patient."""
         today = date.today()  # O(1)
         dob = self.DOB.split()  # O(1)
@@ -81,7 +81,7 @@ class Lab:
     # The function has computational complexity 0(N)
 
 
-def parse_patient_data(filename: str) -> list:
+def parse_patient_data(filename: str) -> list[Patient]:
     """Read the file and parse the data files into lists of class:Patient.
     The analysis of computational complexity is based on the assumption that
     the input data is N by M.
@@ -115,7 +115,7 @@ def parse_patient_data(filename: str) -> list:
     return output_list  # O(1)
 
 
-def parse_lab_data(filename: str) -> list:
+def parse_lab_data(filename: str) -> list[Lab]:
     """Read the file and parse the data files into lists of class:Lab.
     The analysis of computational complexity is based on the assumption that
     the input data is N by M.
@@ -155,7 +155,7 @@ def num_older_than(age: float, patient_info: list[Patient]) -> int:
     """
     count = 0  # O(1)
     for people in patient_info:  # O(N)
-        if people.Age > age:  # O(1)
+        if people.age > age:  # O(1)
             count += 1  # O(1)
     return count  # O(1)
     # The function has computational complexity 0(N)

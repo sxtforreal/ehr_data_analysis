@@ -1,5 +1,3 @@
-# patient_dat and lab_dat are fake, parsed datasets(i.e. output of parse_data function).
-
 import pytest
 from ehr_analysis import (
     Patient,
@@ -17,7 +15,6 @@ patient_dic = [
         "PatientRace": "Unknown",
         "PatientMaritalStatus": "Married",
         "PatientLanguage": "Icelandic",
-        "PatientPopulationPercentageBelowPoverty": "18.08",
     },
     {
         "PatientID": "64182B95-EB72-4E2B-BE77-8050B71498CE",
@@ -26,7 +23,6 @@ patient_dic = [
         "PatientRace": "African American",
         "PatientMaritalStatus": "Separated",
         "PatientLanguage": "English",
-        "PatientPopulationPercentageBelowPoverty": "13.03",
     },
     {
         "PatientID": "DB22A4D9-7E4D-485C-916A-9CD1386507FB",
@@ -35,7 +31,6 @@ patient_dic = [
         "PatientRace": "Asian",
         "PatientMaritalStatus": "Married",
         "PatientLanguage": "English",
-        "PatientPopulationPercentageBelowPoverty": "6.67",
     },
     {
         "PatientID": "6E70D84D-C75F-477C-BC37-9177C3698C66",
@@ -44,7 +39,6 @@ patient_dic = [
         "PatientRace": "White",
         "PatientMaritalStatus": "Married",
         "PatientLanguage": "English",
-        "PatientPopulationPercentageBelowPoverty": "16.09",
     },
 ]
 fake_patient_data = []
@@ -57,7 +51,6 @@ for i in patient_dic:
             i["PatientRace"],
             i["PatientMaritalStatus"],
             i["PatientLanguage"],
-            i["PatientPopulationPercentageBelowPoverty"],
         )
     )
 

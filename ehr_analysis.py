@@ -5,31 +5,28 @@ class:Lab.
 """
 from datetime import date, datetime
 
-
 class Patient:
     def __init__(
         self,
-        ID: str,
+        id: str,
         gender: str,
-        DOB: str,
+        dob: str,
         race: str,
         marital: str,
         language: str,
-        PPPBP: str,
     ):
-        self.ID = ID
+        self.id = id
         self.gender = gender
-        self.DOB = DOB
+        self.dob = dob
         self.race = race
         self.marital = marital
         self.language = language
-        self.PPPBP = PPPBP
 
     @property
     def age(self):
         """Get the current age of the patient."""
         today = date.today()  # O(1)
-        dob = self.DOB.split()  # O(1)
+        dob = self.dob.split()  # O(1)
         dob = datetime.strptime(dob[0], "%Y-%m-%d")  # O(1)
         if today.month > dob.month:  # O(1)
             return today.year - dob.year  # O(1)
@@ -46,26 +43,26 @@ class Patient:
 class Lab:
     def __init__(
         self,
-        PatientID: str,
-        Admission: str,
-        Name: str,
-        Value: str,
-        Units: str,
-        Time: str,
+        id: str,
+        admission: str,
+        name: str,
+        value: str,
+        units: str,
+        time: str,
     ):
-        self.PatientID = PatientID
-        self.Admission = Admission
-        self.Name = Name
-        self.Value = Value
-        self.Units = Units
-        self.Time = Time
+        self.id = id
+        self.admission = admission
+        self.name = name
+        self.value = value
+        self.units = units
+        self.time = time
 
     def visit_age(self, patient_info: list[Patient]):
         for patient in patient_info:  # O(N)
-            if patient.ID == self.PatientID:  # O(1)
-                dob = patient.DOB.split()  # O(1)
+            if patient.id == self.id:  # O(1)
+                dob = patient.dob.split()  # O(1)
                 dob = datetime.strptime(dob[0], "%Y-%m-%d")  # O(1)
-                visit_date = self.Time.split()  # O(1)
+                visit_date = self.time.split()  # O(1)
                 visit_date = datetime.strptime(visit_date[0], "%Y-%m-%d")  # O(1)
                 if visit_date.month > dob.month:  # O(1)
                     return visit_date.year - dob.year  # O(1)
@@ -109,7 +106,6 @@ def parse_patient_data(filename: str) -> list[Patient]:
                         dic["PatientRace"],
                         dic["PatientMaritalStatus"],
                         dic["PatientLanguage"],
-                        dic["PatientPopulationPercentageBelowPoverty"],
                     )  # O(7)
                 )
     return output_list  # O(1)
@@ -170,18 +166,18 @@ def sick_patients(lab: str, gt_lt: str, value: float, lab_info: list[Lab]) -> li
     for record in lab_info:  # O(N)
         if gt_lt == "<":  # O(1)
             if (
-                (record.Name == lab)
-                and (float(record.Value) < value)
-                and (record.PatientID not in lst)
+                (record.name == lab)
+                and (float(record.value) < value)
+                and (record.id not in lst)
             ):  # O(2)
-                lst.append(record.PatientID)  # O(1)
+                lst.append(record.id)  # O(1)
         elif gt_lt == ">":  # O(1)
             if (
-                (record.Name == lab)
-                and (float(record.Value) > value)
-                and (record.PatientID not in lst)
+                (record.name == lab)
+                and (float(record.value) > value)
+                and (record.id not in lst)
             ):  # O(2)
-                lst.append(record.PatientID)  # O(1)
+                lst.append(record.id)  # O(1)
         else:  # O(1)
             raise ValueError("gt_lt should be either < or >")  # O(1)
     return lst  # O(1)
@@ -203,9 +199,7 @@ def first_admission(
     visits = set()  # O(1)
     for record in lab_info:  # O(N)
         if (
-            record.PatientID == id
-            and record.Admission == "1"
-            and record.Name == lab_name
+            record.id == id and record.admission == "1" and record.name == lab_name
         ):  # O(3)
             visits.add(record.visit_age(patient_info))  # O(1)
     first = min(visits)  # O(N)

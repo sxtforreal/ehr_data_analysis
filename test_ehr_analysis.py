@@ -9,17 +9,14 @@ from ehr_2 import (
 )
 from logging import raiseExceptions
 
-con = sqlite3.connect("ehr400.db")
+con = sqlite3.connect("ehr500.db")
 print(con)
 cur = con.cursor()
 print(cur)
 
-# Put your own directory to the data here
-dir_patient = "/Users/sunxiaotan/Desktop/BIO821/ehr/PatientCorePopulatedTable.txt"
-dir_lab = "/Users/sunxiaotan/Desktop/BIO821/ehr/LabsCorePopulatedTable.txt"
-
-parse_patient_data(dir_patient)
-parse_lab_data(dir_lab)
+# Test data available from repo
+parse_patient_data("PatientCorePopulatedTable.txt")
+parse_lab_data("LabsCorePopulatedTable.txt")
 
 
 def test_num_older_than():
@@ -94,4 +91,3 @@ def test_first_admission():
         )
         == 20
     )
-

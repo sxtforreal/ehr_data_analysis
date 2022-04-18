@@ -1,89 +1,22 @@
 """The input data for parse_data function should be text files which entries 
-are separated by tabs. The input data for num_older_than and sick_patients
-should be the parsed data structures, which are list of class:Patient or
-class:Lab.
+are separated by tabs.
 """
-from datetime import date, datetime
 
-class Patient:
-    def __init__(
-        self,
-        id: str,
-        gender: str,
-        dob: str,
-        race: str,
-        marital: str,
-        language: str,
-    ):
-        self.id = id
-        self.gender = gender
-        self.dob = dob
-        self.race = race
-        self.marital = marital
-        self.language = language
+from logging import raiseExceptions
+import sqlite3
 
-    @property
-    def age(self):
-        """Get the current age of the patient."""
-        today = date.today()  # O(1)
-        dob = self.dob.split()  # O(1)
-        dob = datetime.strptime(dob[0], "%Y-%m-%d")  # O(1)
-        if today.month > dob.month:  # O(1)
-            return today.year - dob.year  # O(1)
-        elif today.month == dob.month and today.day >= dob.day:  # O(1)
-            return today.year - dob.year  # O(1)
-        elif today.month == dob.month and today.day < dob.day:  # O(1)
-            return today.year - dob.year - 1  # O(1)
-        elif today.month < dob.month:  # O(1)
-            return today.year - dob.year - 1  # O(1)
-
-    # The function has computational complexity 0(1)
+con = sqlite3.connect("ehr.db")
+cur = con.cursor()
 
 
-class Lab:
-    def __init__(
-        self,
-        id: str,
-        admission: str,
-        name: str,
-        value: str,
-        units: str,
-        time: str,
-    ):
-        self.id = id
-        self.admission = admission
-        self.name = name
-        self.value = value
-        self.units = units
-        self.time = time
-
-    def visit_age(self, patient_info: list[Patient]):
-        for patient in patient_info:  # O(N)
-            if patient.id == self.id:  # O(1)
-                dob = patient.dob.split()  # O(1)
-                dob = datetime.strptime(dob[0], "%Y-%m-%d")  # O(1)
-                visit_date = self.time.split()  # O(1)
-                visit_date = datetime.strptime(visit_date[0], "%Y-%m-%d")  # O(1)
-                if visit_date.month > dob.month:  # O(1)
-                    return visit_date.year - dob.year  # O(1)
-                elif (
-                    visit_date.month == dob.month and visit_date.day >= dob.day
-                ):  # O(2)
-                    return visit_date.year - visit_date.year  # O(1)
-                elif visit_date.month == dob.month and visit_date.day < dob.day:  # O(2)
-                    return visit_date.year - dob.year - 1  # O(1)
-                elif visit_date.month < dob.month:  # O(1)
-                    return visit_date.year - dob.year - 1  # O(1)
-
-    # The function has computational complexity 0(N)
-
-
-def parse_patient_data(filename: str) -> list[Patient]:
-    """Read the file and parse the data files into lists of class:Patient.
+def parse_patient_data(filename: str) -> None:
+    """Read the file and parse the data files into a SQLite table.
     The analysis of computational complexity is based on the assumption that
     the input data is N by M.
     """
-    output_list = []  # O(1)
+    cur.execute(
+        "CREATE TABLE IF NOT EXISTS Patient([id] TEXT PRIMARY KEY , [gender] TEXT, [dob] TEXT, [age] FLOAT)"
+    )  # O(1)
     with open(filename, encoding="utf-8-sig") as p:  # O(1)
         lines = p.readlines()  # O(1)
         col_name = []  # O(1)
@@ -98,110 +31,97 @@ def parse_patient_data(filename: str) -> list[Patient]:
                 dat = line.split("\t")  # O(1)
                 for count, ele in enumerate(dat, 0):  # O(M)
                     dic[col_name[count]] = dat[count]  # O(1)
-                output_list.append(
-                    Patient(
-                        dic["PatientID"],
-                        dic["PatientGender"],
-                        dic["PatientDateOfBirth"],
-                        dic["PatientRace"],
-                        dic["PatientMaritalStatus"],
-                        dic["PatientLanguage"],
-                    )  # O(7)
-                )
-    return output_list  # O(1)
-
-
-def parse_lab_data(filename: str) -> list[Lab]:
-    """Read the file and parse the data files into lists of class:Lab.
-    The analysis of computational complexity is based on the assumption that
-    the input data is N by M.
-    """
-    output_list = []  # O(1)
-    with open(filename, encoding="utf-8-sig") as p:  # O(1)
-        lines = p.readlines()  # O(1)
-        col_name = []  # O(1)
-        first_row = True  # O(1)
-        for line in lines:  # O(N)
-            line = line.strip()  # O(1)
-            if first_row:  # O(1)
-                col_name = line.split()  # O(1)
-                first_row = False  # O(1)
-            elif not first_row:  # O(1)
-                dic = {}  # O(1)
-                dat = line.split("\t")  # O(1)
-                for count, ele in enumerate(dat, 0):  # O(M)
-                    dic[col_name[count]] = dat[count]  # O(1)
-                output_list.append(
-                    Lab(
-                        dic["PatientID"],
-                        dic["AdmissionID"],
-                        dic["LabName"],
-                        dic["LabValue"],
-                        dic["LabUnits"],
-                        dic["LabDateTime"],
-                    )  # O(6)
-                )
-    return output_list  # O(1)
+                lst = [
+                    dic["PatientID"],
+                    dic["PatientGender"],
+                    dic["PatientDateOfBirth"],
+                    0.0,
+                ]  # O(4)
+                cur.execute(
+                    "INSERT or REPLACE INTO Patient VALUES (?, ?, ?, ?)", lst
+                )  # O(1)
+    return
     # The function has computational complexity 0(NM)
 
 
-def num_older_than(age: float, patient_info: list[Patient]) -> int:
-    """Take the data and return the number of patients
-    older than a given age (in years).
+def parse_lab_data(filename: str) -> None:
+    """Read the file and parse the data files into a SQLite table.
+    The analysis of computational complexity is based on the assumption that
+    the input data is N by M.
     """
-    count = 0  # O(1)
-    for people in patient_info:  # O(N)
-        if people.age > age:  # O(1)
-            count += 1  # O(1)
-    return count  # O(1)
-    # The function has computational complexity 0(N)
+    # Create a table for Lab
+    cur.execute(
+        "CREATE TABLE IF NOT EXISTS Lab([id] TEXT, [admission] INTEGER, [name] TEXT, \
+            [value] FLOAT, [units] TEXT, [time] TEXT)"
+    )  # O(1)
+    with open(filename, encoding="utf-8-sig") as p:  # O(1)
+        lines = p.readlines()  # O(1)
+        col_name = []  # O(1)
+        first_row = True  # O(1)
+        for line in lines:  # O(N)
+            line = line.strip()  # O(1)
+            if first_row:  # O(1)
+                col_name = line.split()  # O(1)
+                first_row = False  # O(1)
+            elif not first_row:  # O(1)
+                dic = {}  # O(1)
+                dat = line.split("\t")  # O(1)
+                for count, ele in enumerate(dat, 0):  # O(M)
+                    dic[col_name[count]] = dat[count]  # O(1)
+                lst = [
+                    dic["PatientID"],
+                    dic["AdmissionID"],
+                    dic["LabName"],
+                    dic["LabValue"],
+                    dic["LabUnits"],
+                    dic["LabDateTime"],
+                ]  # O(6)
+                cur.execute(
+                    "INSERT or REPLACE INTO Lab VALUES (?, ?, ?, ?, ?, ?)", lst
+                )  # O(1)
+    return
+    # The function has computational complexity 0(NM)
+
+def num_older_than(given_age: float, cursor) -> int:
+    """Returns the number of patients older than a given age."""
+    cursor.execute(
+        "UPDATE Patient SET age = (strftime('%Y', 'now') - strftime('%Y', dob))\
+             - (strftime('%m-%d', 'now') < strftime('%m-%d', dob))"
+    )
+    ct = cursor.execute("SELECT COUNT(*) FROM Patient WHERE age > ?", (given_age,))
+    return list(ct)[0][0]
+    # The function has computational complexity 0(1)
 
 
-def sick_patients(lab: str, gt_lt: str, value: float, lab_info: list[Lab]) -> list[str]:
-    """Take the data and return a unique list of
-    patients who have a given test with value above
-    (">") or below ("<") a given level.
+def sick_patients(lab: str, gt_lt: str, value: float, cursor) -> list:
+    """Returns a unique list of patients who have a given test with
+    value above (">") or below ("<") a given value.
     """
-    lst = []  # O(1)
-    for record in lab_info:  # O(N)
-        if gt_lt == "<":  # O(1)
-            if (
-                (record.name == lab)
-                and (float(record.value) < value)
-                and (record.id not in lst)
-            ):  # O(2)
-                lst.append(record.id)  # O(1)
-        elif gt_lt == ">":  # O(1)
-            if (
-                (record.name == lab)
-                and (float(record.value) > value)
-                and (record.id not in lst)
-            ):  # O(2)
-                lst.append(record.id)  # O(1)
-        else:  # O(1)
-            raise ValueError("gt_lt should be either < or >")  # O(1)
-    return lst  # O(1)
-    # The function has computational complexity 0(N)
+    if gt_lt == ">":
+        names = cursor.execute(
+            "SELECT DISTINCT id FROM Lab WHERE name = ? AND value > ?", (lab, value)
+        )
+    elif gt_lt == "<":
+        names = cursor.execute(
+            "SELECT DISTINCT id FROM Lab WHERE name = ? AND value < ?", (lab, value)
+        )
+    else:
+        raise ValueError("gt_lt should be either < or >")
+    return list(names)
+    # The function has computational complexity 0(1)
 
 
-def first_admission(
-    lab_info: list[Lab],
-    patient_info: list[Patient],
-    id: str,
-    lab_name: str,
-) -> int:
-    """Take the patient data, lab data, and return the age of the patient's
-    (specified by id) first admission to the lab(specified by lab_name).
-    Because the data contains multiple records for an individual (same
-    addmission id and lab name), the decision is to take the minimum of them
-    as the first date of admission.
+def first_admission(id: str, name: str, cursor) -> int:
+    """Returns the age of the patient's (specified by id)
+    first admission to the lab(specified by lab_name).
     """
-    visits = set()  # O(1)
-    for record in lab_info:  # O(N)
-        if (
-            record.id == id and record.admission == "1" and record.name == lab_name
-        ):  # O(3)
-            visits.add(record.visit_age(patient_info))  # O(1)
-    first = min(visits)  # O(N)
-    return first  # O(1)
-    # The function has computational complexity 0(N)
+    visit_age = cursor.execute(
+        "SELECT MIN((strftime('%Y', time) - strftime('%Y', (SELECT dob FROM \
+            Patient WHERE id = ?))) - (strftime('%m-%d', time) < \
+                strftime('%m-%d', (SELECT dob FROM Patient WHERE \
+                    id = ?)))) FROM Lab WHERE id = ? AND \
+                        admission = 1 AND name = ?",
+        (id, id, id, name),
+    )
+    return list(visit_age)[0][0]
+    # The function has computational complexity 0(1)
